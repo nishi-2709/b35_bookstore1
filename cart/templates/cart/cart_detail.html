@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Shopping Cart</h1>
+    
+    {% if cart_items %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if item.book.cover_image %}
+                                        <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="img-thumbnail me-3" style="width: 50px;">
+                                    {% endif %}
+                                    <div>
+                                        <h5 class="mb-0">{{ item.book.title }}</h5>
+                                        <small class="text-muted">by {{ item.book.author }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${{ item.book.price }}</td>
+                            <td>
+                                <form action="{% url 'cart:cart-update' item.book.id %}" method="post" class="cart-update-form">
+                                    {% csrf_token %}
+                                    <div class="input-group" style="width: 120px;">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" class="form-control quantity-input">
+                                        <button type="submit" class="btn btn-outline-secondary">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                            <td>${{ item.total_price }}</td>
+                            <td>
+                                <form action="{% url 'cart:cart-remove' item.book.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this item?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                        <td colspan="2"><strong>${{ cart_total }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'books:book-list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+            <a href="{% url 'orders:order-create' %}" class="btn btn-primary">
+                Proceed to Checkout <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Looks like you haven't added any books to your cart yet.</p>
+            <a href="{% url 'books:book-list' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-book"></i> Browse Books
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/custom.js' %}"></script>
+{% endblock %} 

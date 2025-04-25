@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} - Bookstore{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" class="img-fluid rounded" alt="{{ book.title }}">
+        {% else %}
+            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
+                <i class="bi bi-book" style="font-size: 6rem; color: #6c757d;"></i>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h1>{{ book.title }}</h1>
+        <p class="text-muted">by {{ book.author }}</p>
+        <div class="mb-4">
+            <h4 class="text-primary">${{ book.price }}</h4>
+            {% if book.stock > 0 %}
+                <span class="badge bg-success">In Stock ({{ book.stock }} available)</span>
+            {% else %}
+                <span class="badge bg-danger">Out of Stock</span>
+            {% endif %}
+        </div>
+        <div class="mb-4">
+            <h4>Description</h4>
+            <p>{{ book.description }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'books:book-list' %}" class="btn btn-outline-secondary">Back to Books</a>
+            {% if user.is_staff %}
+                <a href="{% url 'books:book-update' book.pk %}" class="btn btn-outline-primary">Edit Book</a>
+                <a href="{% url 'books:book-delete' book.pk %}" class="btn btn-outline-danger">Delete Book</a>
+            {% endif %}
+            {% if book.stock > 0 %}
+                <form action="{% url 'cart:add-to-cart' book.pk %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,10 @@
+{% load static %}
+
+<a href="{% url 'cart:cart-detail' %}" class="nav-link position-relative">
+    <i class="fas fa-shopping-cart"></i>
+    {% if cart.items.count > 0 %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
+            {{ cart.items.count }}
+        </span>
+    {% endif %}
+</a> 

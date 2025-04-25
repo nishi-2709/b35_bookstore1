@@ -1,0 +1,11 @@
+{% load static %}
+
+<form action="{% url 'cart:cart-add' book.id %}" method="post" class="cart-item-form">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+        <input type="number" name="quantity" value="1" min="1" max="99" class="form-control quantity-input">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-cart-plus"></i> Add to Cart
+        </button>
+    </div>
+</form> 

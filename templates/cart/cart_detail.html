@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart - Bookstore{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1>Shopping Cart</h1>
+    </div>
+</div>
+
+{% if cart_items %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Book</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if item.book.cover_image %}
+                                        <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" style="width: 50px; height: 75px; object-fit: cover;" class="me-3">
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0">{{ item.book.title }}</h6>
+                                        <small class="text-muted">by {{ item.book.author }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${{ item.book.price }}</td>
+                            <td>
+                                <form action="{% url 'cart:update-cart' item.id %}" method="post" class="update-quantity-form">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width: 70px;">
+                                </form>
+                            </td>
+                            <td>${{ item.get_total_price }}</td>
+                            <td>
+                                <form action="{% url 'cart:remove-from-cart' item.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Order Summary</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span>${{ total_price }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Total Items:</span>
+                    <span>{{ total_items }}</span>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'books:book-list' %}" class="btn btn-outline-secondary">Continue Shopping</a>
+                    <button class="btn btn-primary" {% if not user.is_authenticated %}disabled{% endif %}>
+                        Proceed to Checkout
+                    </button>
+                    {% if not user.is_authenticated %}
+                        <div class="alert alert-warning">
+                            Please <a href="{% url 'users:login' %}">login</a> to proceed with checkout.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            Your cart is empty. <a href="{% url 'books:book-list' %}">Browse our books</a> to add items to your cart.
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.update-quantity-form input').forEach(input => {
+    input.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+</script>
+{% endblock %} 
